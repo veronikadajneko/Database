@@ -1,0 +1,222 @@
+--1. Выдать информацию о местоположении отдела продаж (SALES) компании
+SELECT DEPTADDR FROM DEPT WHERE DEPTNAME='SALES'
+
+-- DEPTADDR
+----------
+-- CHICAGO
+
+--2. Выдать информацию об отделах, расположенных в Chicago и New York.
+SELECT * FROM DEPT WHERE DEPTADDR IN ('CHICAGO', 'NEW YORK')
+
+-- DEPTNO |  DEPTNAME  | DEPTADDR
+--------+------------+----------
+--     10 | ACCOUNTING | NEW YORK
+--     30 | SALES      | CHICAGO
+
+--3. Найти минимальную заработную плату, начисленную в 2009 году.
+SELECT MIN(SALVALUE) FROM SALARY
+WHERE YEAR='2009'
+
+-- MIN(SALVALUE)
+----------------
+-- 600
+
+--4. Выдать информацию обо всех работниках, родившихся не позднее 1 января 1960 года.
+SELECT * FROM EMP WHERE BIRTHDATE < to_date('01-01-1960')
+
+-- EMPNO |   EMPNAME   | BIRTHDATE  | MANAGER_ID
+---------+-------------+------------+------------
+--  7521 | WARD        | 1958-02-22 |       7790
+--  7369 | SMITH       | 1948-12-17 |       7789
+--  7654 | JOHN MARTIN | 1945-09-28 |       7789
+
+--5. Подсчитать число работников, сведения о которых имеются в базе данных .
+SELECT COUNT(EMPNO) FROM EMP
+
+-- count
+-------
+--    10
+--(1 row)
+
+--6. Найти работников, чьё имя состоит из одного слова. Имена выдать на нижнем регистре, с удалением стоящей справа буквы t.
+SELECT EMPNO, LOWER(REGEXP_REPLACE(EMPNAME, '[Tt] *$', '')), BIRTHDATE, MANAGER_ID FROM EMP WHERE EMPNAME NOT LIKE ('% %')
+
+-- EMPNO | LOWER | BIRTHDATE  | MANAGER_ID
+---------+-------+------------+------------
+--  7499 | allen | 1961-02-20 |       7790
+--  7521 | ward  | 1958-02-22 |       7790
+--  7566 | jones | 1973-04-02 |       7790
+--  7369 | smith | 1948-12-17 |       7789
+--  7782 | clark |            |       7499
+--  7788 | scot   | 1987-08-13 |       7499
+
+--7. Выдать информацию о работниках, указав дату рождения в формате день(число), месяц(название), Тоже, но год числом.
+SELECT EMPNO, EMPNAME, TO_CHAR(BIRTHDATE, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE =  AMERICAN') FROM EMP
+
+--EMPNO	EMPNAME	TO_CHAR(BIRTHDATE,'DD-MONTH-YYYY','NLS_DATE_LANGUAGE=AMERICAN')
+----------------------------------------
+--7790	JOHN KLINTON	09-JULY -1980
+--7499	ALLEN	20-FEBRUARY -1961
+--7521	WARD	22-FEBRUARY -1958
+--7566	JONES	02-APRIL -1973
+--7789	ALEX BOUSH	21-SEPTEMBER-1982
+--7369	SMITH	17-DECEMBER -1948
+--7654	JOHN MARTIN	28-SEPTEMBER-1945
+--7698	RICHARD MARTIN	01-MAY -1981
+--7782	CLARK	-
+--7788	SCOTT	13-AUGUST -1987
+
+--год(название). 
+SELECT EMPNO, EMPNAME, TO_CHAR(BIRTHDATE, 'DD-MONTH-YEAR', 'NLS_DATE_LANGUAGE =  AMERICAN') FROM EMP
+
+--EMPNO	EMPNAME	TO_CHAR(BIRTHDATE,'DD-MONTH-YEAR','NLS_DATE_LANGUAGE=AMERICAN')
+--------------------------------------------------------------------------------
+--7790	JOHN KLINTON	09-JULY -NINETEEN EIGHTY
+--7499	ALLEN	20-FEBRUARY -NINETEEN SIXTY-ONE
+--7521	WARD	22-FEBRUARY -NINETEEN FIFTY-EIGHT
+--7566	JONES	02-APRIL -NINETEEN SEVENTY-THREE
+--7789	ALEX BOUSH	21-SEPTEMBER-NINETEEN EIGHTY-TWO
+--7369	SMITH	17-DECEMBER -NINETEEN FORTY-EIGHT
+--7654	JOHN MARTIN	28-SEPTEMBER-NINETEEN FORTY-FIVE
+--7698	RICHARD MARTIN	01-MAY -NINETEEN EIGHTY-ONE
+--7782	CLARK	-
+--7788	SCOTT	13-AUGUST -NINETEEN EIGHTY-SEVEN
+
+--8. Выдать информацию о должностях, изменив названия должности “CLERK” и “DRIVER” на “WORKER”.
+SELECT JOBNO, REGEXP_REPLACE(JOBNAME, '(DRIVER)|(CLERK)', 'WORKER'), MINSALARY FROM JOB
+
+-- JOBNO |   REPLACE   | MINSALARY
+---------+--------------------+-----------
+--  1000 | MANAGER            |      2500
+--  1001 | FINANCIAL DIRECTOR |      7500
+--  1002 | EXECUTIVE DIRECTOR |      8000
+--  1003 | SALESMAN           |      1500
+--  1004 | WORKER             |       500
+--  1005 | WORKER             |      1800
+--  1006 | PRESIDENT          |     15000
+
+
+--9. Определите среднюю зарплату за годы, в которые были начисления не менее чем за три месяца.
+SELECT YEAR, AVG(SALVALUE) FROM SALARY 
+GROUP BY YEAR
+HAVING COUNT(SALVALUE) >=3
+
+
+--YEAR	AVG(SALVALUE)
+-----------------------------------------------
+--2009	650
+--2007	2519.375
+--2010	8083.33333333333333333333333333333333333
+--2008	1912.5
+--2015	3100
+--2016	3328.57142857142857142857142857142857143
+
+--10. Выведете ведомость получения зарплаты с указанием имен служащих
+SELECT EMP.EMPNO, EMPNAME, BIRTHDATE, MONTH, YEAR, SALVALUE from SALARY, EMP WHERE EMP.EMPNO = SALARY.EMPNO
+
+-------first 10 rows----------
+--7369	SMITH	12/17/1948	5	2007	2580
+--7369	SMITH	12/17/1948	6	2007	2650
+--7369	SMITH	12/17/1948	7	2007	2510
+--7369	SMITH	12/17/1948	8	2007	2495
+--7369	SMITH	12/17/1948	9	2007	1750
+--7369	SMITH	12/17/1948	10	2007	3540
+--7369	SMITH	12/17/1948	11	2007	2580
+--7369	SMITH	12/17/1948	12	2007	2050
+--7789	ALEX BOUSH	09/21/1982	1	2008	1850
+--7789	ALEX BOUSH	09/21/1982	2	2008	1900
+
+
+
+---11. Укажите  сведения о начислении сотрудникам зарплаты, 
+----попадающей в вилку: минимальный оклад по должности - минимальный оклад по должности плюс пятьсот. Укажите соответствующую вилке  должность.
+SELECT EMP.EMPNAME, JOB.JOBNAME, SALARY.SALVALUE, JOB.MINSALARY 
+FROM SALARY INNER JOIN EMP ON SALARY.EMPNO = EMP.EMPNO 
+INNER JOIN CAREER ON CAREER.EMPNO = EMP.EMPNO 
+INNER JOIN JOB ON JOB.JOBNO = CAREER.JOBNO
+WHERE SALARY.SALVALUE > JOB.MINSALARY AND SALARY.SALVALUE < JOB.MINSALARY + 500
+
+-------first 10 rows----------
+--------EMPNAME	JOBNAME	SALVALUE	MINSALARY
+--SMITH	SALESMAN	1750	1500
+--ALLEN	EXECUTIVE DIRECTOR	8050	8000
+--ALLEN	EXECUTIVE DIRECTOR	8050	8000
+--ALLEN	EXECUTIVE DIRECTOR	8150	8000
+--ALEX BOUSH	DRIVER	1850	1800
+--ALEX BOUSH	DRIVER	1900	1800
+--ALEX BOUSH	DRIVER	1950	1800
+--ALEX BOUSH	DRIVER	1950	1800
+
+--12. Укажите сведения о заработной плате, совпадающей с минимальными окладами по должностям (с указанием этих должностей).
+SELECT EMP.EMPNAME, SALARY.SALVALUE, JOB.MINSALARY, JOB.JOBNAME 
+FROM SALARY INNER JOIN EMP ON (SALARY.EMPNO = EMP.EMPNO) 
+INNER JOIN CAREER ON (EMP.EMPNO = CAREER.EMPNO) 
+INNER JOIN JOB ON (CAREER.JOBNO = JOB.JOBNO) 
+WHERE SALARY.SALVALUE = JOB.MINSALARY
+
+-----
+-----no data found
+
+--13. Найдите  сведения о карьере сотрудников с указанием вместо номера сотрудника его имени.
+SELECT EMP.EMPNAME, CAREER.STARTDATE, CAREER.ENDDATE 
+FROM EMP NATURAL JOIN CAREER
+
+-------first 10 rows----------
+------EMPNAME	STARTDATE	ENDDATE
+--RICHARD MARTIN	05/21/1999	06/01/1999
+--RICHARD MARTIN	06/01/2010	-
+--SMITH	05/21/2005	-
+--ALLEN	01/02/2003	12/31/2005
+--JOHN MARTIN	07/21/1999	06/01/2004
+--ALLEN	06/01/2006	10/25/2008
+--ALLEN	10/12/2006	-
+--SMITH	07/01/2000	-
+--ALLEN	01/01/2008	-
+--ALEX BOUSH	01/01/2001	-
+
+--14. Найдите  сведения о карьере сотрудников с указанием вместо номера сотрудника его имени.
+SELECT EMP.EMPNAME, CAREER.STARTDATE, CAREER.ENDDATE FROM EMP 
+INNER JOIN CAREER ON (EMP.EMPNO = CAREER.EMPNO)
+
+--15. Выдайте сведения о карьере сотрудников с указанием их имён, наименования должности, и названия отдела.
+SELECT EMP.EMPNAME, DEPT.DEPTNAME, JOB.JOBNAME
+    FROM EMP 
+        NATURAL JOIN CAREER 
+        NATURAL JOIN DEPT 
+        NATURAL JOIN JOB 
+
+-------first 10 rows----------
+--EMPNAME	DEPTNAME	JOBNAME
+--JOHN KLINTON	OPERATIONS	PRESIDENT
+--ALLEN	SALES	FINANCIAL DIRECTOR
+--ALLEN	ACCOUNTING	FINANCIAL DIRECTOR
+--ALLEN	SALES	EXECUTIVE DIRECTOR
+--ALEX BOUSH	OPERATIONS	DRIVER
+--SMITH	RESEARCH	SALESMAN
+--SMITH	SALES	CLERK
+--JOHN MARTIN	RESEARCH	CLERK
+--RICHARD MARTIN	ACCOUNTING	SALESMAN
+--RICHARD MARTIN	ACCOUNTING	CLERK
+
+
+--16. Выдайте сведения о карьере сотрудников с указанием их имён.  
+--Составьте запрос с использованием противоположного вида соединения. 
+--Составьте запрос с использованием полного внешнего соединения.
+
+SELECT EMP.EMPNAME, CAREER.STARTDATE, CAREER.ENDDATE
+    FROM EMP 
+        RIGHT OUTER JOIN CAREER
+            ON (EMP.EMPNO = CAREER.EMPNO)
+    ORDER BY EMP.EMPNAME, CAREER.STARTDATE
+
+SELECT EMP.EMPNAME, CAREER.STARTDATE, CAREER.ENDDATE
+    FROM EMP 
+        LEFT OUTER JOIN CAREER
+            ON (EMP.EMPNO = CAREER.EMPNO)
+    ORDER BY EMP.EMPNAME, CAREER.STARTDATE
+
+SELECT EMP.EMPNAME, CAREER.STARTDATE, CAREER.ENDDATE
+    FROM EMP 
+        FULL OUTER JOIN CAREER
+            ON (EMP.EMPNO = CAREER.EMPNO)
+    ORDER BY EMP.EMPNAME, CAREER.STARTDATE
